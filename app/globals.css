@@ -1,0 +1,23 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@theme inline {
+  --color-moss-bg: #1c1f19;
+  --color-moss-sidebar: #191c16;
+  --color-moss-card: #292e24;
+  --color-moss-border: #41483a;
+  --color-moss-accent: #809f66;
+  --color-moss-active: #252b21;
+  --color-moss-text: #f0f1e9;
+  --color-moss-muted: #a6ad9d;
+}
+
+:root { color-scheme: dark; }
+
+@layer base {
+  * { border-color: #41483a; }
+  html, body { min-height: 100%; }
+  body { margin: 0; background: #1c1f19; color: #f0f1e9; }
+  button { cursor: pointer; }
+}
