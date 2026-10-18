@@ -2,22 +2,35 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
-@theme inline {
-  --color-moss-bg: #1c1f19;
-  --color-moss-sidebar: #191c16;
-  --color-moss-card: #292e24;
-  --color-moss-border: #41483a;
-  --color-moss-accent: #809f66;
-  --color-moss-active: #252b21;
-  --color-moss-text: #f0f1e9;
-  --color-moss-muted: #a6ad9d;
+:root {
+  color-scheme: dark;
+  --background: #1c1f19;
+  --sidebar: #191c16;
+  --card: #292e24;
+  --border: #41483a;
+  --accent: #809f66;
+  --text-primary: #f0f1e9;
+  --text-secondary: #a6ad9d;
 }
 
-:root { color-scheme: dark; }
+@theme inline {
+  --color-background: var(--background);
+  --color-sidebar: var(--sidebar);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+}
 
 @layer base {
-  * { border-color: #41483a; }
+  * { border-color: var(--border); }
   html, body { min-height: 100%; }
-  body { margin: 0; background: #1c1f19; color: #f0f1e9; }
+  body { margin: 0; background: var(--background); color: var(--text-primary); transition: background-color 180ms ease, color 180ms ease; }
   button { cursor: pointer; }
+  ::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); color: var(--text-primary); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--sidebar); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border: 3px solid var(--sidebar); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 }

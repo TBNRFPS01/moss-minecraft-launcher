@@ -1,148 +1,59 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { CSSProperties } from 'react'
 import {
-  Activity,
-  ArrowUpRight,
-  Boxes,
-  Check,
-  ChevronRight,
-  CircleHelp,
-  Cpu,
-  Gauge,
-  Gamepad2,
-  HardDrive,
-  Home,
-  Layers3,
-  Play,
-  Settings,
-  SlidersHorizontal,
-  Sparkles,
-  TerminalSquare,
-  Wrench,
-  X,
+  Activity, ArrowUpRight, Boxes, Check, ChevronRight, CircleHelp, Cpu, Gauge, Gamepad2,
+  HardDrive, Home, Layers3, Play, RotateCcw, Settings, SlidersHorizontal, Sparkles,
+  TerminalSquare, Wrench, X,
 } from 'lucide-react'
 
 type PageKey = 'Home' | 'Instances' | 'Mods' | 'Performance' | 'Settings'
+type ThemeKey = 'moss' | 'midnight' | 'obsidian' | 'nord' | 'dracula' | 'crimson' | 'amoled' | 'sakura' | 'solarized' | 'light'
+type Theme = { name: string; description: string; bg: string; sidebar: string; card: string; border: string; accent: string; text: string; muted: string; secondaryAccent?: string }
+
+type Accent = { name: string; value: string }
+
+const themes: Record<ThemeKey, Theme> = {
+  moss: { name: 'Moss', description: 'Earthy, muted, and unmistakably MOSS.', bg: '#1C1F19', sidebar: '#191C16', card: '#292E24', border: '#41483A', accent: '#809F66', text: '#F0F1E9', muted: '#A6AD9D' },
+  midnight: { name: 'Midnight', description: 'Cinematic navy for late-night sessions.', bg: '#10131B', sidebar: '#0D1017', card: '#191F2C', border: '#303A4D', accent: '#7299F6', text: '#E8EDFA', muted: '#A5AEC4' },
+  obsidian: { name: 'Obsidian', description: 'Almost-black, monochrome, and minimal.', bg: '#090909', sidebar: '#050505', card: '#151515', border: '#303030', accent: '#A5A5A5', text: '#F2F2F2', muted: '#AFAFAF' },
+  nord: { name: 'Nord', description: 'Cool blue-gray surfaces with icy highlights.', bg: '#242C38', sidebar: '#202733', card: '#2E3848', border: '#465467', accent: '#88C0D0', text: '#ECEFF4', muted: '#C0CAD8' },
+  dracula: { name: 'Dracula', description: 'Dark plum with restrained purple energy.', bg: '#211D2B', sidebar: '#191621', card: '#282433', border: '#44394F', accent: '#BD93F9', text: '#F8F8F2', muted: '#C7B7DD', secondaryAccent: '#FF79C6' },
+  crimson: { name: 'Crimson', description: 'Cinematic charcoal with deep red intensity.', bg: '#211719', sidebar: '#191214', card: '#2A2022', border: '#493034', accent: '#E05260', text: '#F4E9E9', muted: '#D9A4A8' },
+  amoled: { name: 'AMOLED', description: 'True black surfaces and vivid green focus.', bg: '#000000', sidebar: '#000000', card: '#080808', border: '#252525', accent: '#39FF88', text: '#E8FFF0', muted: '#8AAB98' },
+  sakura: { name: 'Sakura', description: 'Soft dusty rose with dark elegance.', bg: '#241E22', sidebar: '#1C171A', card: '#2E252B', border: '#493740', accent: '#D99AB0', text: '#F5EAF0', muted: '#D9B8C5' },
+  solarized: { name: 'Solarized', description: 'Deep teal, muted gold, terminal-inspired.', bg: '#172629', sidebar: '#111F22', card: '#203438', border: '#365057', accent: '#D8B365', text: '#EEE8D5', muted: '#B8C8C3' },
+  light: { name: 'Light', description: 'Warm off-white with restrained sage green.', bg: '#F4F2EB', sidebar: '#ECEAE1', card: '#FFFFFF', border: '#D8D8D0', accent: '#66864F', text: '#25291F', muted: '#696D64' },
+}
+
+const accents: Accent[] = [
+  { name: 'Sage green', value: '#809F66' }, { name: 'Blue', value: '#7299F6' }, { name: 'Purple', value: '#BD93F9' },
+  { name: 'Crimson', value: '#E05260' }, { name: 'Rose', value: '#D99AB0' }, { name: 'Cyan', value: '#88C0D0' },
+  { name: 'Gold', value: '#D8B365' }, { name: 'Neutral gray', value: '#A5A5A5' },
+]
 
 const navigation: { label: PageKey; icon: typeof Home }[] = [
-  { label: 'Home', icon: Home },
-  { label: 'Instances', icon: Layers3 },
-  { label: 'Mods', icon: Boxes },
-  { label: 'Performance', icon: Gauge },
-  { label: 'Settings', icon: Settings },
+  { label: 'Home', icon: Home }, { label: 'Instances', icon: Layers3 }, { label: 'Mods', icon: Boxes }, { label: 'Performance', icon: Gauge }, { label: 'Settings', icon: Settings },
 ]
 
 function Sidebar({ activePage, onNavigate }: { activePage: PageKey; onNavigate: (page: PageKey) => void }) {
-  return (
-    <aside className="flex w-full shrink-0 flex-col border-b border-moss-border bg-moss-sidebar px-4 py-5 md:w-[220px] md:border-b-0 md:border-r md:px-3 lg:w-[236px]">
-      <div className="flex items-center gap-3 px-3 pb-9">
-        <div className="grid size-9 place-items-center rounded-xl bg-moss-accent text-moss-sidebar shadow-[0_8px_22px_rgba(128,159,102,0.18)]">
-          <span className="font-mono text-sm font-black">M</span>
-        </div>
-        <div>
-          <div className="text-[17px] font-semibold tracking-[0.18em] text-moss-text">MOSS</div>
-          <div className="mt-0.5 text-[9px] font-medium tracking-[0.2em] text-moss-muted">PERFORMANCE CLIENT</div>
-        </div>
-      </div>
-
-      <nav aria-label="Main navigation" className="flex gap-1 overflow-x-auto md:flex-col">
-        {navigation.map(({ label, icon: Icon }) => {
-          const active = activePage === label
-          return (
-            <button
-              key={label}
-              type="button"
-              onClick={() => onNavigate(label)}
-              className={`group flex min-w-fit items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all duration-200 ${active ? 'bg-moss-active text-moss-text shadow-[inset_0_0_0_1px_rgba(128,159,102,0.1)]' : 'text-moss-muted hover:bg-moss-card/70 hover:text-moss-text'}`}
-            >
-              <Icon className={`size-[17px] transition-colors ${active ? 'text-moss-accent' : 'text-moss-muted group-hover:text-moss-text'}`} strokeWidth={1.8} />
-              <span>{label}</span>
-              {active && <span className="ml-auto hidden size-1.5 rounded-full bg-moss-accent md:block" />}
-            </button>
-          )
-        })}
-      </nav>
-
-      <div className="mt-auto hidden flex-col gap-4 px-3 md:flex">
-        <div className="h-px bg-moss-border" />
-        <button type="button" className="flex items-center gap-3 text-left text-xs text-moss-muted transition-colors hover:text-moss-text">
-          <CircleHelp className="size-4" strokeWidth={1.8} />
-          <span>Help center</span>
-        </button>
-        <div className="rounded-xl border border-moss-border bg-moss-card/50 p-3">
-          <div className="mb-2 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.16em] text-moss-muted"><Activity className="size-3 text-moss-accent" /> System ready</div>
-          <div className="flex items-center justify-between text-[11px] text-moss-text"><span>Launcher build</span><span className="font-mono text-moss-muted">0.8.4</span></div>
-        </div>
-      </div>
-    </aside>
-  )
+  return <aside className="flex w-full shrink-0 flex-col border-b bg-[var(--sidebar)] px-4 py-5 md:w-[220px] md:border-b-0 md:border-r md:px-3 lg:w-[236px]">
+    <div className="flex items-center gap-3 px-3 pb-9"><div className="grid size-9 place-items-center rounded-xl bg-[var(--accent)] text-[var(--sidebar)] shadow-[0_8px_22px_color-mix(in_srgb,var(--accent),transparent_82%)]"><span className="font-mono text-sm font-black">M</span></div><div><div className="text-[17px] font-semibold tracking-[0.18em] text-[var(--text-primary)]">MOSS</div><div className="mt-0.5 text-[9px] font-medium tracking-[0.2em] text-[var(--text-secondary)]">PERFORMANCE CLIENT</div></div></div>
+    <nav aria-label="Main navigation" className="flex gap-1 overflow-x-auto md:flex-col">{navigation.map(({ label, icon: Icon }) => { const active = activePage === label; return <button key={label} type="button" onClick={() => onNavigate(label)} className={`group flex min-w-fit items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${active ? 'bg-[var(--active)] text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:bg-[var(--card)] hover:text-[var(--text-primary)]'}`}><Icon className={`size-[17px] ${active ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}`} strokeWidth={1.8} /><span>{label}</span>{active && <span className="ml-auto hidden size-1.5 rounded-full bg-[var(--accent)] md:block" />}</button> })}</nav>
+    <div className="mt-auto hidden flex-col gap-4 px-3 md:flex"><div className="h-px bg-[var(--border)]" /><button type="button" className="flex items-center gap-3 text-left text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><CircleHelp className="size-4" strokeWidth={1.8} /> <span>Help center</span></button><div className="rounded-xl border bg-[var(--card)] p-3"><div className="mb-2 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--text-secondary)]"><Activity className="size-3 text-[var(--accent)]" /> System ready</div><div className="flex items-center justify-between text-[11px] text-[var(--text-primary)]"><span>Launcher build</span><span className="font-mono text-[var(--text-secondary)]">0.8.4</span></div></div></div>
+  </aside>
 }
 
-function SectionHeader({ page }: { page: PageKey }) {
-  const subtitles: Record<PageKey, string> = {
-    Home: 'Your setup, ready when you are.',
-    Instances: 'Organize your Minecraft installations.',
-    Mods: 'Manage your performance stack.',
-    Performance: 'Tune every frame with intention.',
-    Settings: 'Shape MOSS around your setup.',
-  }
-  return (
-    <header className="mb-7 flex items-end justify-between gap-4">
-      <div>
-        <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.2em] text-moss-accent">{page === 'Home' ? 'Launcher overview' : 'MOSS workspace'}</p>
-        <h1 className="text-3xl font-semibold tracking-[-0.035em] text-moss-text sm:text-[34px]">{page === 'Home' ? 'Welcome back.' : page}</h1>
-        <p className="mt-2 text-sm text-moss-muted">{subtitles[page]}</p>
-      </div>
-      <div className="hidden items-center gap-2 rounded-full border border-moss-border bg-moss-card/50 px-3 py-2 text-[11px] text-moss-muted sm:flex">
-        <span className="size-1.5 rounded-full bg-moss-accent shadow-[0_0_0_3px_rgba(128,159,102,0.12)]" /> Launcher ready
-      </div>
-    </header>
-  )
-}
+function SectionHeader({ page }: { page: PageKey }) { const subtitles: Record<PageKey, string> = { Home: 'Your setup, ready when you are.', Instances: 'Organize your Minecraft installations.', Mods: 'Manage your performance stack.', Performance: 'Tune every frame with intention.', Settings: 'Shape MOSS around your setup.' }; return <header className="mb-7 flex items-end justify-between gap-4"><div><p className="mb-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--accent)]">{page === 'Home' ? 'Launcher overview' : 'MOSS workspace'}</p><h1 className="text-3xl font-semibold tracking-[-0.035em] text-[var(--text-primary)] sm:text-[34px]">{page === 'Home' ? 'Welcome back.' : page}</h1><p className="mt-2 text-sm text-[var(--text-secondary)]">{subtitles[page]}</p></div><div className="hidden items-center gap-2 rounded-full border bg-[var(--card)] px-3 py-2 text-[11px] text-[var(--text-secondary)] sm:flex"><span className="size-1.5 rounded-full bg-[var(--accent)]" /> Launcher ready</div></header> }
 
-function HomeView() {
-  const [notice, setNotice] = useState(false)
-  return (
-    <>
-      <section className="relative overflow-hidden rounded-[18px] border border-moss-border bg-moss-card p-6 sm:p-8">
-        <div className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-moss-accent/5 blur-3xl" />
-        <div className="relative flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
-          <div>
-            <div className="mb-6 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.18em] text-moss-muted"><Gamepad2 className="size-3.5 text-moss-accent" /> Java Edition</div>
-            <div className="flex items-center gap-3"><h2 className="text-[26px] font-semibold tracking-[-0.03em] text-moss-text">Latest Release</h2><span className="rounded-full border border-moss-border bg-moss-bg px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-moss-muted">Stable</span></div>
-            <p className="mt-2 text-sm text-moss-muted">Minecraft 1.21.4 <span className="mx-1.5 text-moss-border">•</span> Fabric 0.16.9</p>
-          </div>
-          <button type="button" onClick={() => setNotice(true)} className="group flex items-center justify-center gap-3 rounded-xl bg-moss-accent px-5 py-3.5 text-sm font-semibold text-moss-sidebar transition-all hover:bg-[#91b476] active:scale-[0.98] sm:min-w-[184px]">
-            <Play className="size-4 fill-current" data-icon="inline-start" /> PLAY MINECRAFT <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          </button>
-        </div>
-        {notice && <div className="relative mt-6 flex items-center justify-between gap-3 rounded-xl border border-moss-accent/25 bg-moss-bg/70 px-4 py-3 text-xs text-moss-muted"><span>Launch is not connected yet. This is a preview of the launcher experience.</span><button type="button" aria-label="Dismiss notice" onClick={() => setNotice(false)}><X className="size-4" /></button></div>}
-        <div className="relative mt-8 flex flex-wrap gap-x-7 gap-y-2 border-t border-moss-border pt-4 text-[11px] text-moss-muted"><span className="flex items-center gap-2"><HardDrive className="size-3.5" /> 4.8 GB allocated</span><span className="flex items-center gap-2"><Cpu className="size-3.5" /> Java 21</span><span className="flex items-center gap-2"><TerminalSquare className="size-3.5" /> Fabric loader</span></div>
-      </section>
+function HomeView() { const [notice, setNotice] = useState(false); return <><section className="relative overflow-hidden rounded-[18px] border bg-[var(--card)] p-6 sm:p-8"><div className="relative flex flex-col justify-between gap-8 sm:flex-row sm:items-end"><div><div className="mb-6 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--text-secondary)]"><Gamepad2 className="size-3.5 text-[var(--accent)]" /> Java Edition</div><div className="flex items-center gap-3"><h2 className="text-[26px] font-semibold text-[var(--text-primary)]">Latest Release</h2><span className="rounded-full border bg-[var(--bg)] px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-[var(--text-secondary)]">Stable</span></div><p className="mt-2 text-sm text-[var(--text-secondary)]">Minecraft 1.21.4 <span className="mx-1.5 text-[var(--border)]">•</span> Fabric 0.16.9</p></div><button type="button" onClick={() => setNotice(true)} className="group flex items-center justify-center gap-3 rounded-xl bg-[var(--accent)] px-5 py-3.5 text-sm font-semibold text-[var(--sidebar)] transition-transform hover:brightness-110 active:scale-[0.98] sm:min-w-[184px]"><Play className="size-4 fill-current" data-icon="inline-start" /> PLAY MINECRAFT <ArrowUpRight className="size-4" /></button></div>{notice && <div className="relative mt-6 flex items-center justify-between gap-3 rounded-xl border border-[var(--accent)]/30 bg-[var(--bg)]/70 px-4 py-3 text-xs text-[var(--text-secondary)]"><span>Launch is not connected yet. This is a preview of the launcher experience.</span><button type="button" aria-label="Dismiss notice" onClick={() => setNotice(false)}><X className="size-4" /></button></div>}<div className="relative mt-8 flex flex-wrap gap-x-7 gap-y-2 border-t pt-4 text-[11px] text-[var(--text-secondary)]"><span className="flex items-center gap-2"><HardDrive className="size-3.5" /> 4.8 GB allocated</span><span className="flex items-center gap-2"><Cpu className="size-3.5" /> Java 21</span><span className="flex items-center gap-2"><TerminalSquare className="size-3.5" /> Fabric loader</span></div></section><div className="mt-4 grid gap-4 sm:grid-cols-2"><InfoCard icon={Gauge} eyebrow="Performance profile" title="Balanced FPS" detail="Optimized for smooth gameplay" action="Adjust profile" /><InfoCard icon={Activity} eyebrow="Instance status" title="Not installed" detail="Choose an instance to get started" action="View instances" /></div><section className="mt-4 rounded-[16px] border bg-[var(--card)]/65 px-5 py-4"><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><div className="grid size-8 place-items-center rounded-lg bg-[var(--accent)]/10 text-[var(--accent)]"><Sparkles className="size-4" /></div><div><p className="text-xs font-medium text-[var(--text-primary)]">MOSS build status</p><p className="mt-0.5 text-[11px] text-[var(--text-secondary)]">Everything is up to date</p></div></div><div className="flex items-center gap-3 text-[11px] text-[var(--text-secondary)]"><span className="flex items-center gap-1.5"><Check className="size-3.5 text-[var(--accent)]" /> v0.8.4 stable</span><span className="hidden text-[var(--border)] sm:inline">|</span><span>Updated today</span><ChevronRight className="size-4" /></div></div></section></> }
+function InfoCard({ icon: Icon, eyebrow, title, detail, action }: { icon: typeof Gauge; eyebrow: string; title: string; detail: string; action: string }) { return <article className="group rounded-[16px] border bg-[var(--card)] p-5 transition-colors hover:border-[var(--accent)]/50"><div className="flex items-start justify-between"><div className="grid size-9 place-items-center rounded-xl bg-[var(--bg)] text-[var(--accent)]"><Icon className="size-[17px]" strokeWidth={1.8} /></div><button type="button" aria-label={action} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><ArrowUpRight className="size-4" /></button></div><p className="mt-5 text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--text-secondary)]">{eyebrow}</p><h3 className="mt-1.5 text-lg font-medium text-[var(--text-primary)]">{title}</h3><p className="mt-1 text-xs text-[var(--text-secondary)]">{detail}</p></article> }
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <InfoCard icon={Gauge} eyebrow="Performance profile" title="Balanced FPS" detail="Optimized for smooth gameplay" action="Adjust profile" />
-        <InfoCard icon={Activity} eyebrow="Instance status" title="Not installed" detail="Choose an instance to get started" action="View instances" />
-      </div>
+function ThemePreview({ theme, accent }: { theme: Theme; accent: string }) { return <div className="overflow-hidden rounded-lg border" style={{ background: theme.bg, borderColor: theme.border }}><div className="flex h-[86px]" style={{ color: theme.text }}><div className="w-[25%] p-2" style={{ background: theme.sidebar }}><div className="mb-3 flex items-center gap-1.5"><span className="grid size-4 place-items-center rounded bg-[var(--preview-accent)] text-[8px] font-bold" style={{ ['--preview-accent' as string]: accent, color: theme.sidebar }}>M</span><span className="text-[7px] font-bold tracking-widest">MOSS</span></div><div className="h-1.5 w-10 rounded" style={{ background: accent }} /><div className="mt-2 h-1.5 w-12 rounded" style={{ background: theme.border }} /><div className="mt-2 h-1.5 w-8 rounded" style={{ background: theme.border }} /></div><div className="flex-1 p-2.5"><div className="mb-2 h-1.5 w-16 rounded" style={{ background: theme.muted }} /><div className="rounded-md p-2" style={{ background: theme.card, border: `1px solid ${theme.border}` }}><div className="h-1.5 w-20 rounded" style={{ background: theme.text, opacity: .85 }} /><div className="mt-2 h-2.5 w-16 rounded" style={{ background: accent }} /></div><div className="mt-2 flex gap-1.5"><div className="h-4 flex-1 rounded" style={{ background: theme.card, border: `1px solid ${theme.border}` }} /><div className="h-4 flex-1 rounded" style={{ background: theme.card, border: `1px solid ${theme.border}` }} /></div></div></div></div> }
 
-      <section className="mt-4 rounded-[16px] border border-moss-border bg-moss-card/65 px-5 py-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><div className="grid size-8 place-items-center rounded-lg bg-moss-accent/10 text-moss-accent"><Sparkles className="size-4" /></div><div><p className="text-xs font-medium text-moss-text">MOSS build status</p><p className="mt-0.5 text-[11px] text-moss-muted">Everything is up to date</p></div></div><div className="flex items-center gap-3 text-[11px] text-moss-muted"><span className="flex items-center gap-1.5"><Check className="size-3.5 text-moss-accent" /> v0.8.4 stable</span><span className="hidden text-moss-border sm:inline">|</span><span>Updated today</span><ChevronRight className="size-4" /></div></div>
-      </section>
-    </>
-  )
-}
+function AppearanceView({ themeKey, setThemeKey, accent, setAccent }: { themeKey: ThemeKey; setThemeKey: (key: ThemeKey) => void; accent: string | null; setAccent: (value: string | null) => void }) { const activeTheme = themes[themeKey]; const liveAccent = accent ?? activeTheme.accent; return <div className="flex flex-col gap-6"><section><div className="mb-4 flex items-end justify-between gap-4"><div><h2 className="text-lg font-medium text-[var(--text-primary)]">Theme gallery</h2><p className="mt-1 text-xs text-[var(--text-secondary)]">Choose a visual system for every MOSS workspace.</p></div><span className="text-xs text-[var(--text-secondary)]">{Object.keys(themes).length} themes</span></div><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{Object.entries(themes).map(([key, theme]) => { const selected = key === themeKey; const previewAccent = key === themeKey ? liveAccent : theme.accent; return <button key={key} type="button" onClick={() => setThemeKey(key as ThemeKey)} aria-pressed={selected} className={`group rounded-2xl border p-3 text-left transition-colors ${selected ? 'border-[var(--accent)] bg-[var(--accent)]/5' : 'bg-[var(--card)] hover:border-[var(--accent)]/50'}`}><ThemePreview theme={theme} accent={previewAccent} /><div className="mt-3 flex items-center justify-between"><div><div className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">{theme.name}{selected && <Check className="size-3.5 text-[var(--accent)]" />}</div><p className="mt-1 text-[11px] text-[var(--text-secondary)]">{theme.description}</p></div><div className="flex gap-1">{[theme.bg, theme.sidebar, theme.card, theme.border, previewAccent].map((color, index) => <span key={`${color}-${index}`} className="size-3 rounded-full border border-white/10" style={{ background: color }} />)}</div></div></button> })}</div></section><section className="rounded-2xl border bg-[var(--card)] p-5"><div className="mb-4 flex items-center justify-between"><div><h2 className="text-lg font-medium text-[var(--text-primary)]">Live preview</h2><p className="mt-1 text-xs text-[var(--text-secondary)]">{activeTheme.name} with your current accent.</p></div><div className="rounded-full border px-3 py-1 text-[11px] text-[var(--text-secondary)]">{activeTheme.name}</div></div><ThemePreview theme={activeTheme} accent={liveAccent} /></section><section><div className="mb-4 flex items-end justify-between"><div><h2 className="text-lg font-medium text-[var(--text-primary)]">Accent color</h2><p className="mt-1 text-xs text-[var(--text-secondary)]">Override the theme accent for actions and selected states.</p></div>{accent && <button type="button" onClick={() => setAccent(null)} className="flex items-center gap-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RotateCcw className="size-3.5" /> Reset to theme default</button>}</div><div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{accents.map((option) => <button key={option.name} type="button" onClick={() => setAccent(option.value)} aria-pressed={liveAccent === option.value} className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors ${liveAccent === option.value ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--text-primary)]' : 'bg-[var(--card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}><span className="size-3 rounded-full" style={{ background: option.value }} />{option.name}</button>)}</div></section><button type="button" onClick={() => { setThemeKey('moss'); setAccent(null) }} className="flex w-fit items-center gap-2 rounded-xl border px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--card)] hover:text-[var(--text-primary)]"><RotateCcw className="size-3.5" /> Reset all appearance</button></div> }
 
-function InfoCard({ icon: Icon, eyebrow, title, detail, action }: { icon: typeof Gauge; eyebrow: string; title: string; detail: string; action: string }) {
-  return <article className="group rounded-[16px] border border-moss-border bg-moss-card p-5 transition-colors hover:border-moss-accent/35"><div className="flex items-start justify-between"><div className="grid size-9 place-items-center rounded-xl bg-moss-bg text-moss-accent"><Icon className="size-[17px]" strokeWidth={1.8} /></div><button type="button" aria-label={action} className="text-moss-muted transition-colors hover:text-moss-text"><ArrowUpRight className="size-4" /></button></div><p className="mt-5 text-[10px] font-medium uppercase tracking-[0.16em] text-moss-muted">{eyebrow}</p><h3 className="mt-1.5 text-lg font-medium text-moss-text">{title}</h3><p className="mt-1 text-xs text-moss-muted">{detail}</p></article>
-}
+function PlaceholderView({ page }: { page: PageKey }) { const Icon = page === 'Mods' ? Boxes : page === 'Performance' ? SlidersHorizontal : page === 'Settings' ? Wrench : Layers3; return <div className="grid min-h-[460px] place-items-center rounded-[18px] border border-dashed bg-[var(--card)]/40 p-8 text-center"><div className="max-w-sm"><div className="mx-auto grid size-12 place-items-center rounded-2xl bg-[var(--accent)]/10 text-[var(--accent)]"><Icon className="size-5" /></div><h2 className="mt-5 text-lg font-medium text-[var(--text-primary)]">{page} is ready to be configured</h2><p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">This workspace is part of the MOSS preview. Connect your Minecraft setup to begin managing it here.</p><button type="button" className="mt-6 rounded-lg border px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--card)]">Explore workspace</button></div></div> }
 
-function PlaceholderView({ page }: { page: PageKey }) {
-  const Icon = page === 'Mods' ? Boxes : page === 'Performance' ? SlidersHorizontal : page === 'Settings' ? Wrench : Layers3
-  return <div className="grid min-h-[460px] place-items-center rounded-[18px] border border-dashed border-moss-border bg-moss-card/40 p-8 text-center"><div className="max-w-sm"><div className="mx-auto grid size-12 place-items-center rounded-2xl bg-moss-accent/10 text-moss-accent"><Icon className="size-5" /></div><h2 className="mt-5 text-lg font-medium text-moss-text">{page} is ready to be configured</h2><p className="mt-2 text-sm leading-6 text-moss-muted">This workspace is part of the MOSS preview. Connect your Minecraft setup to begin managing it here.</p><button type="button" className="mt-6 rounded-lg border border-moss-border px-4 py-2 text-xs font-medium text-moss-text transition-colors hover:bg-moss-card">Explore workspace</button></div></div>
-}
-
-export function MossLauncher() {
-  const [activePage, setActivePage] = useState<PageKey>('Home')
-  return <div className="min-h-screen bg-moss-bg font-sans text-moss-text"><div className="mx-auto flex min-h-screen max-w-[1440px] flex-col md:flex-row"><Sidebar activePage={activePage} onNavigate={setActivePage} /><main className="min-w-0 flex-1 px-5 py-7 sm:px-8 lg:px-12 lg:py-10"><div className="mx-auto max-w-[940px]"><SectionHeader page={activePage} />{activePage === 'Home' ? <HomeView /> : <PlaceholderView page={activePage} />}</div></main></div></div>
-}
+export function MossLauncher() { const [activePage, setActivePage] = useState<PageKey>('Home'); const [themeKey, setThemeKey] = useState<ThemeKey>('moss'); const [accent, setAccent] = useState<string | null>(null); const activeTheme = themes[themeKey]; const liveAccent = accent ?? activeTheme.accent; useEffect(() => { const savedTheme = window.localStorage.getItem('moss-theme') as ThemeKey | null; const savedAccent = window.localStorage.getItem('moss-accent'); if (savedTheme && savedTheme in themes) setThemeKey(savedTheme); if (savedAccent) setAccent(savedAccent) }, []); useEffect(() => { window.localStorage.setItem('moss-theme', themeKey); accent ? window.localStorage.setItem('moss-accent', accent) : window.localStorage.removeItem('moss-accent') }, [themeKey, accent]); const style = useMemo(() => ({ '--bg': activeTheme.bg, '--sidebar': activeTheme.sidebar, '--card': activeTheme.card, '--border': activeTheme.border, '--accent': liveAccent, '--text-primary': activeTheme.text, '--text-secondary': activeTheme.muted, '--active': `color-mix(in srgb, ${liveAccent} 13%, ${activeTheme.card})` }) as React.CSSProperties, [activeTheme, liveAccent]); return <div style={style} className="min-h-screen bg-[var(--bg)] font-sans text-[var(--text-primary)]"><div className="mx-auto flex min-h-screen max-w-[1440px] flex-col md:flex-row"><Sidebar activePage={activePage} onNavigate={setActivePage} /><main className="min-w-0 flex-1 px-5 py-7 sm:px-8 lg:px-12 lg:py-10"><div className="mx-auto max-w-[940px]"><SectionHeader page={activePage} />{activePage === 'Home' ? <HomeView /> : activePage === 'Settings' ? <AppearanceView themeKey={themeKey} setThemeKey={setThemeKey} accent={accent} setAccent={setAccent} /> : <PlaceholderView page={activePage} />}</div></main></div></div> }
