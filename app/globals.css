@@ -4,13 +4,13 @@
 
 :root {
   color-scheme: dark;
-  --background: #1c1f19;
-  --sidebar: #191c16;
-  --card: #292e24;
-  --border: #41483a;
-  --accent: #809f66;
-  --text-primary: #f0f1e9;
-  --text-secondary: #a6ad9d;
+  --background: #151B15;
+  --sidebar: #101610;
+  --card: #20291F;
+  --border: #384535;
+  --accent: #C7A86A;
+  --text-primary: #F0EFE5;
+  --text-secondary: #A8B09F;
 }
 
 @theme inline {
